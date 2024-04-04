@@ -8,14 +8,14 @@ from models.products import products
 app = FastAPI()
 
 
-@app.get("/product/{product_id}")
+@app.get("/get_product/{product_id}")
 async def get_product(product_id: int):
     product_manager = ProductManager(product_id=product_id,
                                      products=products)
     return await product_manager.get_product()
 
 
-@app.get("/products_search")
+@app.get("/search_products")
 async def search_products(keyword: str, category: Optional[str] = None, limit: Optional[int] = 10):
     product_manager = ProductManager(product_id=None,
                                      products=products,
