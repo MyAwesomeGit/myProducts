@@ -1,3 +1,5 @@
+from typing import Optional
+
 import uvicorn
 from fastapi import FastAPI
 from controllers.product_manager import ProductManager
@@ -14,8 +16,13 @@ async def get_product(product_id: int):
 
 
 @app.get("/products_search")
-async def products_search():
-    pass
+async def search_products(keyword: str, category: Optional[str] = None, limit: Optional[int] = 10):
+    product_manager = ProductManager(product_id=None,
+                                     products=products,
+                                     keyword=keyword,
+                                     category=category,
+                                     limit=limit)
+    return await product_manager.search_products()
 
 
 if __name__ == "__main__":
