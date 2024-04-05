@@ -2,7 +2,7 @@
 
 * Python
 * FastAPI
-* pytest
+* Pytest
 
 This project is a simple FastAPI application designed to serve as a foundation for building a product management API. It utilises Uvicorn to run the application, showcasing the integration of FastAPI with Uvicorn for efficient web application deployment.
 
@@ -50,6 +50,31 @@ You can install packages using [pip](https://pip.pypa.io/en/stable/):
 ```bash
 pip install -r requirements.txt
 ```
+
+## Testing with Pytest
+This project includes tests for both successful and failed scenarios for the get_product and search_products endpoints.
+The test case uses mock data to simulate a set of products. 
+
+
+```bash
+pytest -v tests
+```
+
+
+The ProductManager class is responsible for managing product data, including fetching product details based on a given product ID and searching for products based on the provided keyword, category and limit.
+This functionality is tested using pytest and pytest-asyncio, which allows for the testing of asynchronous code in Python.
+
+The **test_get_product_success** function is an asynchronous test case that verifies the ProductManager can successfully retrieve a product by its ID.
+
+
+The **test_get_product_fail** verifies the behavior of the ProductManager when attempting to retrieve a product that does not exist in the provided product data.
+
+
+The **test_search_products_success** function is an asynchronous test case that checks if the ProductManager class can successfully search for products based on the provided keyword, category, and limit.
+
+
+The **test_search_products_fail** function is an asynchronous test case that verifies the behavior of the ProductManager class when attempting to search for products that do not match the specified criteria. It uses the pytest framework with the pytest-asyncio plugin to facilitate testing of asynchronous code.
+
 
 ## Authors
 * <https://github.com/MyAwesomeGit>
