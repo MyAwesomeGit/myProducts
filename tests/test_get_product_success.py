@@ -1,5 +1,5 @@
 import pytest
-from src.controllers.product_manager import ProductManager
+from controllers.product_manager import ProductManager
 
 products = {2: {"product_id": 123, "name": "Keyboard Keychron Q1", "category": "Electronics", "price": 112.99}}
 
