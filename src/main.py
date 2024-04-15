@@ -48,12 +48,19 @@ async def login(user: User = Body(...), response: Response = Response()):
             session_token = secrets.token_hex(16)
             sessions[session_token] = user
             response.set_cookie(key="session_token", value=session_token, httponly=True)
-            return {"detail": "Login successful"}, status.HTTP_200_OK
+            return {"detail": "Login successful"}, status.HTTP_200_OK, response
     raise HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Incorrect username or password",
         headers={"WWW-Authenticate": "Bearer"},
     )
+
+
+@app.get('/user')
+async def user_info(session_token: str = Cookie(None)):
+    if session_token:
+        return {"session_token": session_token}
+    return {"message": "Unauthorized"}
 
 
 if __name__ == "__main__":
