@@ -14,9 +14,6 @@ class ProductManager:
         self.category = category
         self.limit = limit
 
-    def __init_(self):
-        pass
-
     async def add_product(self):
         pass
 
