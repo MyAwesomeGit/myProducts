@@ -1,7 +1,7 @@
 from typing import Optional
 import secrets
 import uvicorn
-from fastapi import FastAPI, HTTPException, status, Cookie, Response, Body, Depends
+from fastapi import FastAPI, HTTPException, status, Cookie, Response, Body, Depends, Request
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from pydantic import BaseModel
 from controllers.product_manager import ProductManager
@@ -84,6 +84,22 @@ def get_user_from_db(username: str):
 @app.post('/login_with_basic_auth')
 def login_with_basic_auth(user: User = Depends(authenticate_user)):
     return {"message": "Login successful", "user_info": user}
+
+
+@app.get('/header_info')
+async def header_info(request: Request):
+    user_agent = request.headers.get("user-agent")
+    accept_language = request.headers.get("accept-language")
+
+    if user_agent is None:
+        raise HTTPException(status_code=400, detail="Missing required headers")
+
+    response_data = {
+        "User-Agent": user_agent,
+        "Accept-Language": accept_language
+    }
+
+    return response_data
 
 
 if __name__ == "__main__":
