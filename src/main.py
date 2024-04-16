@@ -1,7 +1,8 @@
 from typing import Optional
 import secrets
 import uvicorn
-from fastapi import FastAPI, HTTPException, status, Cookie, Response, Body
+from fastapi import FastAPI, HTTPException, status, Cookie, Response, Body, Depends
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from pydantic import BaseModel
 from controllers.product_manager import ProductManager
 from models.products import products
@@ -61,6 +62,28 @@ async def user_info(session_token: str = Cookie(None)):
     if session_token:
         return {"session_token": session_token}
     return {"message": "Unauthorized"}
+
+
+security = HTTPBasic()
+
+
+def authenticate_user(credentials: HTTPBasicCredentials = Depends(security)):
+    user = get_user_from_db(credentials.username)
+    if user is None or user.password != credentials.password:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
+    return user
+
+
+def get_user_from_db(username: str):
+    for user in sample_db:
+        if user.username == username:
+            return user
+    return None
+
+
+@app.post('/login_with_basic_auth')
+def login_with_basic_auth(user: User = Depends(authenticate_user)):
+    return {"message": "Login successful", "user_info": user}
 
 
 if __name__ == "__main__":
