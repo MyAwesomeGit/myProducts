@@ -5,6 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="09dc0898-8ab8-4888-8988-799e9534617d" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/controllers/authenticate_manager.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/models/products_user.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/models/user_db.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -36,7 +40,7 @@
     "Python.playground.executor": "Run",
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "feature/header-info",
+    "git-widget-placeholder": "refactor/AuthenticateManager",
     "last_opened_file_path": "/Users/vasilyshuklin/Documents/Python/myProducts"
   }
 }]]></component>

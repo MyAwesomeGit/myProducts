@@ -5,9 +5,12 @@ from fastapi import FastAPI, HTTPException, status, Cookie, Response, Body, Depe
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from pydantic import BaseModel
 from controllers.product_manager import ProductManager
+from controllers.authenticate_manager import AuthenticateManager
 from models.products import products
 
+
 app = FastAPI()
+security = HTTPBasic()
 
 
 @app.get("/get_product/{product_id}")
@@ -64,9 +67,6 @@ async def user_info(session_token: str = Cookie(None)):
     return {"message": "Unauthorized"}
 
 
-security = HTTPBasic()
-
-
 def authenticate_user(credentials: HTTPBasicCredentials = Depends(security)):
     user = get_user_from_db(credentials.username)
     if user is None or user.password != credentials.password:
@@ -82,8 +82,23 @@ def get_user_from_db(username: str):
 
 
 @app.post('/login_with_basic_auth')
-def login_with_basic_auth(user: User = Depends(authenticate_user)):
-    return {"message": "Login successful", "user_info": user}
+def login_with_basic_auth(credentials: HTTPBasicCredentials = Depends(HTTPBasic())):
+    response_data = {}
+    try:
+        authenticate_manager = AuthenticateManager(credentials=credentials)
+        user = authenticate_manager.authenticate_user()
+        response_data = {
+            "message": "Login successful",
+            "user_info": user
+        }
+    except Exception as e:
+        exception_message = str(e)
+        response_data = {
+            "message": "Login error",
+            "user_info": exception_message
+        }
+    finally:
+        return response_data
 
 
 @app.get('/header_info')
