@@ -1,0 +1,1 @@
+products_sessions: dict = {}

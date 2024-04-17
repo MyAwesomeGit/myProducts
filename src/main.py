@@ -7,7 +7,7 @@ from pydantic import BaseModel
 from controllers.product_manager import ProductManager
 from controllers.authenticate_manager import AuthenticateManager
 from models.products import products
-
+from models.products_sessions import products_sessions
 
 app = FastAPI()
 security = HTTPBasic()
@@ -42,15 +42,13 @@ sample_db = [
     User(username="hello", password="111")
 ]
 
-sessions: dict = {}
-
 
 @app.post("/login")
 async def login(user: User = Body(...), response: Response = Response()):
     for person in sample_db:
         if person.username == user.username and person.password == user.password:
             session_token = secrets.token_hex(16)
-            sessions[session_token] = user
+            products_sessions[session_token] = user
             response.set_cookie(key="session_token", value=session_token, httponly=True)
             return {"detail": "Login successful"}, status.HTTP_200_OK, response
     raise HTTPException(
@@ -103,18 +101,22 @@ def login_with_basic_auth(credentials: HTTPBasicCredentials = Depends(HTTPBasic(
 
 @app.get('/header_info')
 async def header_info(request: Request):
-    user_agent = request.headers.get("user-agent")
-    accept_language = request.headers.get("accept-language")
-
-    if user_agent is None:
-        raise HTTPException(status_code=400, detail="Missing required headers")
-
-    response_data = {
-        "User-Agent": user_agent,
-        "Accept-Language": accept_language
-    }
-
+    try:
+        user_agent = request.headers.get("user-agent")
+        accept_language = request.headers.get("accept-language")
+        if user_agent is None:
+            raise HTTPException(status_code=400, detail="Missing required headers")
+        response_data = {
+            "User-Agent": user_agent,
+            "Accept-Language": accept_language
+        }
+    except Exception as e:
+        exception_message = str(e)
+        response_data = {
+            "message": exception_message
+        }
     return response_data
+
 
 
 if __name__ == "__main__":
