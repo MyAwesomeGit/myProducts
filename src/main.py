@@ -3,7 +3,6 @@ import secrets
 import uvicorn
 from fastapi import FastAPI, HTTPException, status, Cookie, Response, Body, Depends, Request
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
-from pydantic import BaseModel
 from controllers.product_manager import ProductManager
 from controllers.authenticate_manager import AuthenticateManager
 from models.products import products
@@ -32,13 +31,13 @@ async def search_products(keyword: str, category: Optional[str] = None, limit: O
     return await product_manager.search_products()
 
 
-@app.post("/login")
-async def login(user: ProductsUser = Body(...), response: Response = Response()):
+@app.post("/create_session_token")
+async def create_session_token(user: ProductsUser = Body(...), response: Response = Response()):
     for person in ProductsUserDB.database:
         if person.username == user.username and person.password == user.password and person.access_permission is not None:
             session_token = secrets.token_hex(16)
             products_sessions[session_token] = user
-            response.set_cookie(key="session_token", value=session_token, httponly=True)
+            response.set_cookie(key="session_token", value=session_token)
             return {"detail": "Login successful"}, status.HTTP_200_OK, response
     raise HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -47,8 +46,8 @@ async def login(user: ProductsUser = Body(...), response: Response = Response())
     )
 
 
-@app.get('/user')
-async def user_info(session_token: str = Cookie(None)):
+@app.get('/user_session_token')
+async def user_session_token(session_token: str = Cookie(None)):
     if session_token:
         return {"session_token": session_token}
     return {"message": "Unauthorized"}
