@@ -8,6 +8,7 @@ from controllers.product_manager import ProductManager
 from controllers.authenticate_manager import AuthenticateManager
 from models.products import products
 from models.products_sessions import products_sessions
+from models.products_user import ProductsUser
 
 app = FastAPI()
 security = HTTPBasic()
@@ -30,23 +31,18 @@ async def search_products(keyword: str, category: Optional[str] = None, limit: O
     return await product_manager.search_products()
 
 
-# TODO: Remove User to separate class
-class User(BaseModel):
-    username: str
-    password: str
-
-
 # TODO: Remove sample_db to separate entity
 sample_db = [
-    User(username="test", password="123"),
-    User(username="hello", password="111")
+    ProductsUser(username="test", password="123", access_permission="administrator"),
+    ProductsUser(username="hello", password="111", access_permission="guest"),
+    ProductsUser(username="iamuser", password="012", access_permission="user")
 ]
 
 
 @app.post("/login")
-async def login(user: User = Body(...), response: Response = Response()):
+async def login(user: ProductsUser = Body(...), response: Response = Response()):
     for person in sample_db:
-        if person.username == user.username and person.password == user.password:
+        if person.username == user.username and person.password == user.password and person.access_permission is not None:
             session_token = secrets.token_hex(16)
             products_sessions[session_token] = user
             response.set_cookie(key="session_token", value=session_token, httponly=True)
