@@ -53,13 +53,6 @@ async def user_session_token(session_token: str = Cookie(None)):
     return {"message": "Unauthorized"}
 
 
-def authenticate_user(credentials: HTTPBasicCredentials = Depends(security)):
-    user = get_user_from_db(credentials.username)
-    if user is None or user.password != credentials.password:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
-    return user
-
-
 def get_user_from_db(username: str):
     for user in ProductsUserDB.database:
         if user.username == username:
