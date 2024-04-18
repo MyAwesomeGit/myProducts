@@ -9,6 +9,7 @@ from controllers.authenticate_manager import AuthenticateManager
 from models.products import products
 from models.products_sessions import products_sessions
 from models.products_user import ProductsUser
+from models.products_user_db import ProductsUserDB
 
 app = FastAPI()
 security = HTTPBasic()
@@ -31,17 +32,9 @@ async def search_products(keyword: str, category: Optional[str] = None, limit: O
     return await product_manager.search_products()
 
 
-# TODO: Remove sample_db to separate entity
-sample_db = [
-    ProductsUser(username="test", password="123", access_permission="administrator"),
-    ProductsUser(username="hello", password="111", access_permission="guest"),
-    ProductsUser(username="iamuser", password="012", access_permission="user")
-]
-
-
 @app.post("/login")
 async def login(user: ProductsUser = Body(...), response: Response = Response()):
-    for person in sample_db:
+    for person in ProductsUserDB.database:
         if person.username == user.username and person.password == user.password and person.access_permission is not None:
             session_token = secrets.token_hex(16)
             products_sessions[session_token] = user
@@ -69,7 +62,7 @@ def authenticate_user(credentials: HTTPBasicCredentials = Depends(security)):
 
 
 def get_user_from_db(username: str):
-    for user in sample_db:
+    for user in ProductsUserDB.database:
         if user.username == username:
             return user
     return None
