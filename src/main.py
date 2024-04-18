@@ -1,8 +1,10 @@
+import datetime
 from typing import Optional
 import secrets
+import jwt
 import uvicorn
 from fastapi import FastAPI, HTTPException, status, Cookie, Response, Body, Depends, Request
-from fastapi.security import HTTPBasic, HTTPBasicCredentials
+from fastapi.security import HTTPBasic, HTTPBasicCredentials, OAuth2PasswordBearer
 from controllers.product_manager import ProductManager
 from controllers.authenticate_manager import AuthenticateManager
 from models.products import products
@@ -53,6 +55,9 @@ async def user_session_token(session_token: str = Cookie(None)):
     return {"message": "Unauthorized"}
 
 
+"""Authentication with basic info"""
+
+
 @app.post('/login_with_basic_auth')
 def login_with_basic_auth(credentials: HTTPBasicCredentials = Depends(HTTPBasic())):
     response_data = {}
@@ -73,6 +78,49 @@ def login_with_basic_auth(credentials: HTTPBasicCredentials = Depends(HTTPBasic(
         return response_data
 
 
+"""Authentication with JWT"""
+SECRET_KEY = "my_secret_key"
+ALGORITHM = "HS256"
+
+
+# TODO: Remove to separate entity
+def create_access_token(data: dict, expires_delta: datetime.timedelta = None):
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.datetime.utcnow() + expires_delta
+    else:
+        expire = datetime.datetime.utcnow() + datetime.timedelta(minutes=15)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
+
+
+@app.post('/authorization')
+async def authorization(credentials: HTTPBasicCredentials = Depends(HTTPBasic())):
+    response_data = {}
+    try:
+        authenticate_manager = AuthenticateManager(credentials=credentials)
+        user = authenticate_manager.authenticate_user()
+        if user:
+            access_token = create_access_token(data={"sub": credentials.username})
+            response_data = access_token
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid credentials",
+            )
+    except Exception as e:
+        exception_message = str(e)
+        response_data = {
+            "message": exception_message
+        }
+    finally:
+        return response_data
+
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+
+
 @app.get('/header_info')
 async def header_info(request: Request):
     try:
@@ -90,7 +138,6 @@ async def header_info(request: Request):
             "message": exception_message
         }
     return response_data
-
 
 
 if __name__ == "__main__":
