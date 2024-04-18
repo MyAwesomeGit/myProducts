@@ -1,8 +1,7 @@
 import secrets
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBasicCredentials, HTTPBasic
-
-from models.user_db import products_user_db
+from models.products_user_db import ProductsUserDB
 
 
 class AuthenticateManager:
@@ -10,7 +9,7 @@ class AuthenticateManager:
         self.credentials = credentials
 
     def get_user_from_db(self):
-        for user in products_user_db:
+        for user in ProductsUserDB.database:
             if user.username == self.credentials.username:
                 return user
         return None
