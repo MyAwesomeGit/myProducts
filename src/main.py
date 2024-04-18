@@ -53,13 +53,6 @@ async def user_session_token(session_token: str = Cookie(None)):
     return {"message": "Unauthorized"}
 
 
-def get_user_from_db(username: str):
-    for user in ProductsUserDB.database:
-        if user.username == username:
-            return user
-    return None
-
-
 @app.post('/login_with_basic_auth')
 def login_with_basic_auth(credentials: HTTPBasicCredentials = Depends(HTTPBasic())):
     response_data = {}
