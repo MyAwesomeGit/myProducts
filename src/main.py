@@ -121,6 +121,29 @@ async def authorization(credentials: HTTPBasicCredentials = Depends(HTTPBasic())
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 
+# TODO: Remove to separate entity
+async def get_current_user(token: str = Depends(oauth2_scheme)):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username: str = payload.get("sub")
+        if username is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid credentials",
+            )
+        return username
+    except jwt.PyJWTError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid credentials",
+        )
+
+
+@app.get("/protected_resource")
+async def protected_resource(current_user: str = Depends(get_current_user)):
+    return {"message": f"Hello, {current_user}!"}
+
+
 @app.get('/header_info')
 async def header_info(request: Request):
     try:
