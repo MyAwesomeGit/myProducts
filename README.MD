@@ -21,7 +21,25 @@ Endpoint is intended for searching products based on certain criteria. This endp
 
 The application is configured to run on the local machine (127.0.0.1) at port 8080, making it accessible for local development and testing.
 
-This project serves as a starting point and demonstrates the basic setup required to create a FastAPI application, including defining routes, handling requests asynchronously, and running the application with Uvicorn.
+
+3. Authorization:
+```bash
+/authorization
+```
+This endpoint uses HTTP Basic Authentication to securely authenticate users and generate JWT tokens for authorized access to protected resources.
+
+Upon successful authentication, the endpoint returns a JSON object containing the JWT access token and the user's access level.
+
+If the credentials are invalid, the endpoint returns a 401 Unauthorized status code with a message indicating the error.
+
+4. Protected resource:
+```bash
+/protected_resource
+```
+This endpoint is a protected resource that requires a valid JWT token to access. The endpoint checks the user's access level and permissions to ensure they have the necessary permissions to access the resource.
+
+It returns a personalized message to the authenticated user, including their username, access level, and permissions.
+
 
 
 ## Getting Started
