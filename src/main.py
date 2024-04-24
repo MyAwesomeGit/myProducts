@@ -102,8 +102,12 @@ async def authorization(credentials: HTTPBasicCredentials = Depends(HTTPBasic())
         authenticate_manager = AuthenticateManager(credentials=credentials)
         user = authenticate_manager.authenticate_user()
         if user:
-            access_token = create_access_token(data={"sub": credentials.username})
-            response_data = access_token
+            access_token = create_access_token(data={"sub": credentials.username,
+                                                     "access_level": user.access_level})
+            response_data = {
+                "access_token": access_token,
+                "user_access_level": user.access_level
+            }
         else:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -126,12 +130,16 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get("sub")
+        access_level: str = payload.get("access_level")
         if username is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid credentials",
             )
-        return username
+        return {
+            "username": username,
+            "access_level": access_level
+        }
     except jwt.PyJWTError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -140,8 +148,12 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
 
 
 @app.get("/protected_resource")
-async def protected_resource(current_user: str = Depends(get_current_user)):
-    return {"message": f"Hello, {current_user}!"}
+async def protected_resource(user_info: dict = Depends(get_current_user)):
+    current_user = user_info["username"]
+    access_level = user_info["access_level"]
+    return {"message": f"Hello, {current_user}! "
+                       f"Your role is: {access_level}."
+            }
 
 
 @app.get('/header_info')
