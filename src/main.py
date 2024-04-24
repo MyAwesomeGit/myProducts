@@ -136,9 +136,11 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid credentials",
             )
+        permissions = ProductsUserDB.get_permissions(access_level)
         return {
             "username": username,
-            "access_level": access_level
+            "access_level": access_level,
+            "permissions": permissions
         }
     except jwt.PyJWTError:
         raise HTTPException(
@@ -151,8 +153,11 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
 async def protected_resource(user_info: dict = Depends(get_current_user)):
     current_user = user_info["username"]
     access_level = user_info["access_level"]
+    permissions = user_info["permissions"]
+
     return {"message": f"Hello, {current_user}! "
-                       f"Your role is: {access_level}."
+                       f"Your role is: {access_level}. "
+                       f"Your permissions are: {', '.join(permissions)}."
             }
 
 
